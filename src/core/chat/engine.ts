@@ -93,7 +93,7 @@ export class Engine extends HTTPClient implements IEngine {
    * @constructor
    */
   constructor(config: EngineInitConfig) {
-    super()
+    super(config.devMode)
 
     this._apiKey = config.apiKey
     this._storage = config.storage

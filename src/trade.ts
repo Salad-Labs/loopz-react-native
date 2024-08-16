@@ -77,7 +77,7 @@ export class Trade extends HTTPClient {
    * @throws {Error} Throws an error if blocksNumberConfirmationRequired is less than 1 or if apiKey is missing or invalid.
    */
   constructor(config: ApiKeyAuthorized) {
-    super()
+    super(config.devMode)
 
     this._blocksNumberConfirmationRequired = this._MIN_BLOCKS_REQUIRED
     this._apiKey = config.apiKey

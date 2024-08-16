@@ -17,7 +17,7 @@ export class Oracle extends HTTPClient {
    * @returns None
    */
   constructor(config: ApiKeyAuthorized) {
-    super()
+    super(config.devMode)
     this._apiKey = config.apiKey
   }
 

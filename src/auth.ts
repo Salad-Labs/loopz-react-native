@@ -52,7 +52,7 @@ export class Auth extends HTTPClient implements AuthInternalEvents {
    * @returns None
    */
   constructor(config: AuthConfig & ApiKeyAuthorized) {
-    super()
+    super(config.devMode)
 
     this._storage = config.storage
     this._apiKey = config.apiKey
@@ -448,112 +448,159 @@ export class Auth extends HTTPClient implements AuthInternalEvents {
   }
 
   private _formatAuthParams(authInfo: PrivyAuthInfo): AuthParams {
-    return {
+    let wallet = authInfo.user.linked_accounts.find(
+      (account) => account.type === "wallet"
+    )
+    let apple = authInfo.user.linked_accounts.find(
+      (account) => account.type === "apple_oauth"
+    )
+    let discord = authInfo.user.linked_accounts.find(
+      (account) => account.type === "discord_oauth"
+    )
+    let farcaster = authInfo.user.linked_accounts.find(
+      (account) => account.type === "farcaster"
+    )
+    let github = authInfo.user.linked_accounts.find(
+      (account) => account.type === "github_oauth"
+    )
+    let google = authInfo.user.linked_accounts.find(
+      (account) => account.type === "google_oauth"
+    )
+    let instagram = authInfo.user.linked_accounts.find(
+      (account) => account.type === "instagram_oauth"
+    )
+    let linkedin = authInfo.user.linked_accounts.find(
+      (account) => account.type === "linkedin_oauth"
+    )
+    let spotify = authInfo.user.linked_accounts.find(
+      (account) => account.type === "spotify_oauth"
+    )
+    let telegram = authInfo.user.linked_accounts.find(
+      (account) => account.type === "telegram"
+    )
+    let tiktok = authInfo.user.linked_accounts.find(
+      (account) => account.type === "tiktok_oauth"
+    )
+    let twitter = authInfo.user.linked_accounts.find(
+      (account) => account.type === "twitter_oauth"
+    )
+    let phone = authInfo.user.linked_accounts.find(
+      (account) => account.type === "phone"
+    )
+    let email = authInfo.user.linked_accounts.find(
+      (account) => account.type === "email"
+    )
+
+    let auth = {
       did: authInfo.user.id,
-      walletAddress: authInfo.user.wallet!.address,
-      walletConnectorType: authInfo.user.wallet!.connectorType!,
-      walletImported: authInfo.user.wallet!.imported
-        ? authInfo.user.wallet!.imported
-        : false,
-      walletRecoveryMethod: authInfo.user.wallet!.recoveryMethod
-        ? authInfo.user.wallet!.recoveryMethod
+      walletAddress: wallet!.address,
+      walletConnectorType: wallet!.connector_type ? wallet!.connector_type : "",
+      walletImported: false,
+      walletRecoveryMethod: "",
+      walletClientType: wallet!.wallet_client_type
+        ? wallet!.wallet_client_type
         : "",
-      walletClientType: authInfo.user.wallet!.walletClientType
-        ? authInfo.user.wallet!.walletClientType
-        : "",
-      appleSubject: authInfo.user.apple ? authInfo.user.apple.subject : null,
-      appleEmail: authInfo.user.apple ? authInfo.user.apple.email : null,
-      discordSubject: authInfo.user.discord
-        ? authInfo.user.discord.subject
+      appleSubject: apple ? apple.subject : null,
+      appleEmail: apple ? apple.email : null,
+      discordSubject: discord ? discord.subject : null,
+      discordEmail: discord ? discord.email : null,
+      discordUsername: discord ? discord.username : null,
+      farcasterFid: farcaster ? farcaster.fid : null,
+      farcasterDisplayName: farcaster
+        ? farcaster.display_name
+          ? farcaster.display_name
+          : ""
         : null,
-      discordEmail: authInfo.user.discord ? authInfo.user.discord.email : null,
-      discordUsername: authInfo.user.discord
-        ? authInfo.user.discord.username
+      farcasterOwnerAddress: farcaster ? farcaster.owner_address : null,
+      farcasterPfp: farcaster
+        ? farcaster.profile_picture_url
+          ? farcaster.profile_picture_url
+          : ""
         : null,
-      farcasterFid: authInfo.user.farcaster
-        ? authInfo.user.farcaster.fid
+      farcasterSignerPublicKey: farcaster
+        ? farcaster.signer_public_key
+          ? farcaster.signer_public_key
+          : null
         : null,
-      farcasterDisplayName: authInfo.user.farcaster
-        ? authInfo.user.farcaster.displayName
+      farcasterUrl: farcaster
+        ? farcaster.homepage_url
+          ? farcaster.homepage_url
+          : null
         : null,
-      farcasterOwnerAddress: authInfo.user.farcaster
-        ? authInfo.user.farcaster.ownerAddress
+      farcasterUsername: farcaster
+        ? farcaster.username
+          ? farcaster.username
+          : null
         : null,
-      farcasterPfp: authInfo.user.farcaster
-        ? authInfo.user.farcaster.pfp
+      githubSubject: github ? github.subject : null,
+      githubEmail: github ? (github.email ? github.email : null) : null,
+      githubName: github ? (github.name ? github.name : null) : null,
+      githubUsername: github
+        ? github.username
+          ? github.username
+          : null
         : null,
-      farcasterSignerPublicKey: authInfo.user.farcaster
-        ? authInfo.user.farcaster.signerPublicKey
+      googleEmail: google ? google.email : null,
+      googleName: google ? (google.name ? google.name : null) : null,
+      googleSubject: google ? google.subject : null,
+      instagramSubject: instagram ? instagram.subject : null,
+      instagramUsername: instagram ? instagram.username : null,
+      linkedinEmail: linkedin ? (linkedin.email ? linkedin.email : null) : null,
+      linkedinName: linkedin ? (linkedin.name ? linkedin.name : null) : null,
+      linkedinSubject: linkedin ? linkedin.subject : null,
+      linkedinVanityName: linkedin
+        ? linkedin.vanity_name
+          ? linkedin.vanity_name
+          : null
         : null,
-      farcasterUrl: authInfo.user.farcaster
-        ? authInfo.user.farcaster.url
+      spotifyEmail: spotify ? (spotify.email ? spotify.email : null) : null,
+      spotifyName: spotify ? (spotify.name ? spotify.name : null) : null,
+      spotifySubject: spotify ? spotify.subject : null,
+      telegramFirstName: telegram
+        ? telegram.firstName
+          ? telegram.firstName
+          : null
         : null,
-      farcasterUsername: authInfo.user.farcaster
-        ? authInfo.user.farcaster.username
+      telegramLastName: telegram
+        ? telegram.last_name
+          ? telegram.last_name
+          : null
         : null,
-      githubSubject: authInfo.user.github ? authInfo.user.github.subject : null,
-      githubEmail: authInfo.user.github ? authInfo.user.github.email : null,
-      githubName: authInfo.user.github ? authInfo.user.github.name : null,
-      githubUsername: authInfo.user.github
-        ? authInfo.user.github.username
+      telegramPhotoUrl: telegram
+        ? telegram.photo_url
+          ? telegram.photo_url
+          : null
         : null,
-      googleEmail: authInfo.user.google ? authInfo.user.google.email : null,
-      googleName: authInfo.user.google ? authInfo.user.google.name : null,
-      googleSubject: authInfo.user.google ? authInfo.user.google.subject : null,
-      instagramSubject: authInfo.user.instagram
-        ? authInfo.user.instagram.subject
+      telegramUserId: telegram ? telegram.telegram_user_id : null,
+      telegramUsername: telegram
+        ? telegram.username
+          ? telegram.username
+          : null
         : null,
-      instagramUsername: authInfo.user.instagram
-        ? authInfo.user.instagram.username
+      tiktokName: tiktok ? (tiktok.name ? tiktok.name : null) : null,
+      tiktokSubject: tiktok ? tiktok.subject : null,
+      tiktokUsername: tiktok
+        ? tiktok.username
+          ? tiktok.username
+          : null
         : null,
-      linkedinEmail: authInfo.user.linkedin
-        ? authInfo.user.linkedin.email
+      twitterName: twitter ? (twitter.name ? twitter.name : null) : null,
+      twitterSubject: twitter ? twitter.subject : null,
+      twitterProfilePictureUrl: twitter
+        ? twitter.profile_picture_url
+          ? twitter.profile_picture_url
+          : null
         : null,
-      linkedinName: authInfo.user.linkedin ? authInfo.user.linkedin.name : null,
-      linkedinSubject: authInfo.user.linkedin
-        ? authInfo.user.linkedin.subject
+      twitterUsername: twitter
+        ? twitter.username
+          ? twitter.username
+          : null
         : null,
-      linkedinVanityName: authInfo.user.linkedin
-        ? authInfo.user.linkedin.vanityName
-        : null,
-      spotifyEmail: authInfo.user.spotify ? authInfo.user.spotify.email : null,
-      spotifyName: authInfo.user.spotify ? authInfo.user.spotify.name : null,
-      spotifySubject: authInfo.user.spotify
-        ? authInfo.user.spotify.subject
-        : null,
-      telegramFirstName: authInfo.user.telegram
-        ? authInfo.user.telegram.firstName
-        : null,
-      telegramLastName: authInfo.user.telegram
-        ? authInfo.user.telegram.lastName
-        : null,
-      telegramPhotoUrl: authInfo.user.telegram
-        ? authInfo.user.telegram.photoUrl
-        : null,
-      telegramUserId: authInfo.user.telegram
-        ? authInfo.user.telegram.telegramUserId
-        : null,
-      telegramUsername: authInfo.user.telegram
-        ? authInfo.user.telegram.username
-        : null,
-      tiktokName: authInfo.user.tiktok ? authInfo.user.tiktok.name : null,
-      tiktokSubject: authInfo.user.tiktok ? authInfo.user.tiktok.subject : null,
-      tiktokUsername: authInfo.user.tiktok
-        ? authInfo.user.tiktok.username
-        : null,
-      twitterName: authInfo.user.twitter ? authInfo.user.twitter.name : null,
-      twitterSubject: authInfo.user.twitter
-        ? authInfo.user.twitter.subject
-        : null,
-      twitterProfilePictureUrl: authInfo.user.twitter
-        ? authInfo.user.twitter.profilePictureUrl
-        : null,
-      twitterUsername: authInfo.user.twitter
-        ? authInfo.user.twitter.username
-        : null,
-      phone: authInfo.user.phone ? authInfo.user.phone.number : null,
-      email: authInfo.user.email ? authInfo.user.email.address : null,
+      phone: phone ? phone.phoneNumber : null,
+      email: email ? email.address : null,
     }
+
+    return auth
   }
 
   private _clearEventsCallbacks(events: Array<AuthEvents>) {

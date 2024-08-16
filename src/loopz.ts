@@ -30,25 +30,34 @@ export class Loopz {
 
   private static _privyAdapter: Maybe<PrivyAdapter> = null
 
-  private constructor(config: LoopzConfig, runAdapter?: boolean) {
+  private static _devMode: boolean = false
+
+  private constructor(config: LoopzConfig, devMode?: boolean) {
     Loopz._apiKey = config.apiKey
     Loopz._privyAppId = config.privyAppId
     Loopz._privyClientConfig = config.privyClientConfig
     Loopz._storage = config.storage
     Loopz._randomLsname = `loopz_${uuid()}`
 
+    if (typeof devMode !== "undefined" && devMode === true)
+      Loopz._devMode = true
+
     Loopz._oracle = new Oracle({
       apiKey: config.apiKey,
+      devMode: Loopz._devMode,
     })
     Loopz._post = new Post({
       apiKey: config.apiKey,
+      devMode: Loopz._devMode,
     })
     Loopz._trade = new Trade({
       apiKey: config.apiKey,
+      devMode: Loopz._devMode,
     })
     Loopz._chat = new Chat({
       apiKey: Loopz._apiKey,
       storage: config.storage,
+      devMode: Loopz._devMode,
     })
     Loopz._auth = new Auth({
       apiKey: config.apiKey,
@@ -59,6 +68,7 @@ export class Loopz {
       trade: Loopz._trade,
       chat: Loopz._chat,
       storage: config.storage,
+      devMode: Loopz._devMode,
     })
   }
 
@@ -68,10 +78,16 @@ export class Loopz {
 
   static async boot(
     config: Omit<LoopzConfig, "storage">,
-    options: { runAdapter?: boolean; enableStorage?: boolean }
+    options: { devMode?: boolean; enableStorage?: boolean }
   ): Promise<Loopz> {
     if (!Loopz._instance) {
-      const { runAdapter, enableStorage } = options
+      let enableStorage = undefined
+      let devMode = undefined
+
+      if (options && "enableStorage" in options)
+        enableStorage = options.enableStorage
+      if (options && "devMode" in options) devMode = options.devMode
+
       const storage = await Loopz.createOrConnectToStorage()
 
       //storage is enabled by default
@@ -83,7 +99,7 @@ export class Loopz {
           ...config,
           storage,
         },
-        runAdapter
+        devMode
       )
     }
 

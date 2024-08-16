@@ -6,6 +6,8 @@ type ApiKeyAuthorized = {
    * @property {string} apiKey - The API key for authorization.
    */
   apiKey: string
+
+  devMode: boolean
 }
 
 export { ApiKeyAuthorized }

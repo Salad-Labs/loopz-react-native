@@ -22,6 +22,10 @@ export class HTTPClient {
 
   protected _account: Maybe<Account> = null
 
+  constructor(enableDevMode: boolean) {
+    if (enableDevMode) this.enableDevMode()
+  }
+
   /**
    * Fetches data from a specified URL using XMLHttpRequest.
    * @param {string | URL} url - The URL to fetch data from.
@@ -180,6 +184,14 @@ export class HTTPClient {
   protected toggleDevMode() {
     this._devMode =
       this._devMode === "development" ? "production" : "development"
+  }
+
+  protected enableDevMode() {
+    this._devMode = "development"
+  }
+
+  protected disableDevMode() {
+    this._devMode = "production"
   }
 
   protected isDevelopment() {

@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react"
 
 export const usePrivyMobileLoginWithEmail = (auth: Auth) => {
   const initialized = useRef<boolean>(false)
-  const { isReady, getAccessToken } = usePrivy()
+  const { isReady, getAccessToken, user } = usePrivy()
   const { sendCode, loginWithCode } = useLoginWithEmail({
     onSendCodeSuccess: ({ email }) => {
       auth._emit("__onEmailOTPCodeSent", email)

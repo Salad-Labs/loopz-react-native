@@ -9,7 +9,7 @@ import {
   LinkAccountInfo,
 } from "./types/auth"
 import { ApiResponse } from "./types/base/apiresponse"
-import { ApiKeyAuthorized } from "./types/base"
+import { ApiKeyAuthorized, Maybe } from "./types/base"
 import { Crypto } from "./core"
 import { Account, RealmStorage } from "./core/app"
 import { PrivyClientConfig } from "./interfaces"
@@ -27,6 +27,7 @@ import {
 } from "@privy-io/expo"
 import { AccountInitConfig } from "./types/auth/account"
 import { Chat } from "./chat"
+import { LocalDBUser } from "./core/app/database"
 
 /**
  * Represents an authentication client that interacts with a backend server for user authentication.
@@ -92,6 +93,29 @@ export class Auth extends HTTPClient implements AuthInternalEvents {
     if (!keys) return false
 
     return keys
+  }
+
+  private async _getUserE2EPublicKey(
+    did: string,
+    organizationId: string
+  ): Promise<Maybe<string>> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const storage = this._storage as RealmStorage
+
+        storage.query((realm, user) => {
+          const existingUser = user.filtered(
+            `compositeKey == '${did}-${organizationId}'`
+          )
+
+          if (!existingUser) resolve(null)
+
+          resolve((existingUser[0]! as unknown as LocalDBUser).e2ePublicKey)
+        }, "user")
+      } catch (error) {
+        reject(error)
+      }
+    })
   }
 
   private async _handleRealm(account: Account) {
@@ -252,6 +276,10 @@ export class Auth extends HTTPClient implements AuthInternalEvents {
         method: "POST",
         body: {
           ...this._formatAuthParams(authInfo),
+          e2ePublicKey: await this._getUserE2EPublicKey(
+            authInfo.user.id,
+            this._apiKey!
+          ),
         },
         headers: {
           "x-api-key": `${this._apiKey}`,
@@ -318,6 +346,10 @@ export class Auth extends HTTPClient implements AuthInternalEvents {
         method: "POST",
         body: {
           ...this._formatAuthParams(authInfo),
+          e2ePublicKey: await this._getUserE2EPublicKey(
+            authInfo.user.id,
+            this._apiKey!
+          ),
         },
         headers: {
           "x-api-key": `${this._apiKey}`,
@@ -372,6 +404,10 @@ export class Auth extends HTTPClient implements AuthInternalEvents {
         method: "POST",
         body: {
           ...this._formatAuthParams(authInfo),
+          e2ePublicKey: await this._getUserE2EPublicKey(
+            authInfo.user.id,
+            this._apiKey!
+          ),
         },
         headers: {
           "x-api-key": `${this._apiKey}`,
@@ -420,6 +456,10 @@ export class Auth extends HTTPClient implements AuthInternalEvents {
         method: "POST",
         body: {
           ...this._formatAuthParams(authInfo),
+          e2ePublicKey: await this._getUserE2EPublicKey(
+            authInfo.user.id,
+            this._apiKey!
+          ),
         },
         headers: {
           "x-api-key": `${this._apiKey}`,
@@ -1029,6 +1069,7 @@ export class Auth extends HTTPClient implements AuthInternalEvents {
           resolve(status)
         })
 
+        this._clearEventsCallbacks(["__onLoginComplete", "__onLoginError"])
         this._emit("__logout")
       } catch (error) {
         console.warn(error)

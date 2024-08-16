@@ -37,19 +37,6 @@ export class Loopz {
     Loopz._storage = config.storage
     Loopz._randomLsname = `loopz_${uuid()}`
 
-    if (runAdapter === true || typeof runAdapter === "undefined") {
-      if (typeof window === "undefined")
-        throw new Error("Adapter must be runned only in desktop environments.")
-      if (typeof window !== "undefined")
-        Loopz._privyAdapter = new PrivyAdapter({
-          appId: config.privyAppId,
-          options:
-            typeof window === "undefined"
-              ? undefined
-              : config.privyClientConfig,
-        })
-    }
-
     Loopz._oracle = new Oracle({
       apiKey: config.apiKey,
     })
@@ -73,9 +60,6 @@ export class Loopz {
       chat: Loopz._chat,
       storage: config.storage,
     })
-
-    if (Loopz._privyAdapter)
-      Loopz._privyAdapter.render(Loopz._auth, Loopz._trade)
   }
 
   private static async createOrConnectToStorage(): Promise<RealmStorage> {

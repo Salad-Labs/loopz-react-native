@@ -173,16 +173,17 @@ export class Crypto {
     base64Key: string,
     base64IV: string
   ): string {
-    return ""
     const key = forge.util.decode64(base64Key)
     const iv = forge.util.decode64(base64IV)
     const cipher = forge.cipher.createCipher("AES-CBC", key)
+
     cipher.start({ iv })
     cipher.update(forge.util.createBuffer(text))
     cipher.finish()
-    const encrypted = cipher.output.getBytes()
 
-    return forge.util.encode64(encrypted)
+    const encryptedHex = forge.util.bytesToHex(cipher.output.getBytes())
+
+    return encryptedHex.toString()
   }
 
   static decryptAES_CBC(
@@ -190,12 +191,14 @@ export class Crypto {
     base64Key: string,
     base64IV: string
   ): string {
-    return ""
     const key = forge.util.decode64(base64Key)
     const iv = forge.util.decode64(base64IV)
     const decipher = forge.cipher.createDecipher("AES-CBC", key)
+
     decipher.start({ iv })
-    decipher.update(forge.util.createBuffer(forge.util.decode64(encryptedText)))
+    decipher.update(
+      forge.util.createBuffer(forge.util.hexToBytes(encryptedText))
+    )
     decipher.finish()
 
     return decipher.output.toString()
@@ -213,7 +216,6 @@ export class Crypto {
     cipher.finish()
 
     return forge.util.encode64(cipher.output.getBytes())
-    return ""
   }
 
   static decryptSHA256_IV(
@@ -221,7 +223,6 @@ export class Crypto {
     hash256Key: string,
     base64IV: string
   ): string {
-    return ""
     const decipher = forge.cipher.createDecipher("AES-CBC", hash256Key)
 
     decipher.start({ iv: forge.util.decode64(base64IV) })

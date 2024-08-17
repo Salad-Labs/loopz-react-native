@@ -445,8 +445,8 @@ export class Chat
 
         const e2ePrivateKeyPem = Crypto.decryptAES_CBC(
           e2eEncryptedPrivateKey,
-          Buffer.from(e2eSecret).toString("base64"),
-          Buffer.from(e2eSecretIV).toString("base64")
+          Buffer.from(e2eSecret, "hex").toString("base64"),
+          Buffer.from(e2eSecretIV, "hex").toString("base64")
         )
 
         const userKeyPair = await Crypto.generateKeyPairFromPem(

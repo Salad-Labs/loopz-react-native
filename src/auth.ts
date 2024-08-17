@@ -113,7 +113,8 @@ export class Auth extends HTTPClient implements AuthInternalEvents {
           resolve((existingUser[0]! as unknown as LocalDBUser).e2ePublicKey)
         }, "user")
       } catch (error) {
-        reject(error)
+        console.log(error)
+        reject(null)
       }
     })
   }
@@ -128,8 +129,8 @@ export class Auth extends HTTPClient implements AuthInternalEvents {
       //let's encrypt first the private key. Private key will be always calculated runtime.
       const encryptedPrivateKey = Crypto.encryptAES_CBC(
         Crypto.convertRSAPrivateKeyToPem(keys.privateKey),
-        Buffer.from(account.e2eSecret).toString("base64"),
-        Buffer.from(account.e2eSecretIV).toString("base64")
+        Buffer.from(account.e2eSecret, "hex").toString("base64"),
+        Buffer.from(account.e2eSecretIV, "hex").toString("base64")
       )
       const publicKey = Crypto.convertRSAPublicKeyToPem(keys.publicKey)
 
@@ -310,11 +311,11 @@ export class Auth extends HTTPClient implements AuthInternalEvents {
       this._oracleRef.setCurrentAccount(account)
       this._postRef.setCurrentAccount(account)
 
-      await this._handleRealm(account)
-
       //clear all the internal callbacks connected to the authentication...
       let event: "__onOAuthAuthenticatedMobile" = "__onOAuthAuthenticatedMobile"
       this._clearEventsCallbacks([event, "__onLoginError"])
+
+      await this._handleRealm(account)
 
       this._emit("auth", {
         auth: {
@@ -324,6 +325,9 @@ export class Auth extends HTTPClient implements AuthInternalEvents {
         account,
       })
     } catch (error) {
+      //clear all the internal callbacks connected to the authentication...
+      let event: "__onOAuthAuthenticatedMobile" = "__onOAuthAuthenticatedMobile"
+      this._clearEventsCallbacks([event, "__onLoginError"])
       this._emit("onAuthError", error)
     }
   }
@@ -375,10 +379,10 @@ export class Auth extends HTTPClient implements AuthInternalEvents {
       this._oracleRef.setCurrentAccount(account)
       this._postRef.setCurrentAccount(account)
 
-      await this._handleRealm(account)
-
       //clear all the internal callbacks connected to the authentication...
       this._clearEventsCallbacks(["__onLoginComplete", "__onLoginError"])
+
+      await this._handleRealm(account)
 
       resolve({
         auth: {

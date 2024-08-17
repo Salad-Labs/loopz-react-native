@@ -183,7 +183,7 @@ export class Crypto {
 
     const encryptedHex = forge.util.bytesToHex(cipher.output.getBytes())
 
-    return encryptedHex.toString()
+    return encryptedHex
   }
 
   static decryptAES_CBC(
